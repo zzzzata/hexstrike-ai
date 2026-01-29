@@ -1,0 +1,25 @@
+一、在 Kali 虚拟机里操作
+1. 确保能上网
+# 测试网络ping -c 2 8.8.8.8ping -c 2 google.com
+不通的话先检查虚拟机网络（NAT/桥接）。
+2. 安装 Git 和 Python 环境（若未装）
+sudo apt install -y git python3 python3-pip python3-venv
+sudo apt updatesudo apt install -y git python3 python3-pip python3-venv
+3. 把 HexStrike AI 拉到虚拟机
+git clone https://github.com/0x4m4/hexstrike-ai.git
+# 进到用户目录（或你想放的目录）cd ~# 克隆项目（从 GitHub 拉取）git clone https://github.com/0x4m4/hexstrike-ai.git# 进入项目目录cd hexstrike-ai
+如果 GitHub 访问慢，可以用镜像或先在本机下载再传到虚拟机，例如：
+# 本机下载 zip 后，用 scp 传到虚拟机（在宿主机执行，把 <VM_IP> 换成虚拟机 IP）# scp -r hexstrike-ai-master.zip user@<VM_IP>:~/# 在虚拟机里： unzip hexstrike-ai-master.zip && mv hexstrike-ai-master hexstrike-ai && cd hexstrike-ai
+4. 创建虚拟环境并装依赖（含 fastmcp 修复）
+pip
+# 仍在 ~/hexstrike-ai 目录下python3 -m venv hexstrike-envsource hexstrike-env/bin/activate# 升级 pippip install --upgrade pip# 先装 MCP（解决 fastmcp 报错）pip install "mcp[server]>=0.2.0"# 再装其他依赖（可选：先改 requirements 再装）# 方法 A：不改文件，跳过 fastmcp 装其余pip install flask requests psutil beautifulsoup4 selenium webdriver-manager aiohttp mitmproxy# 方法 B：改掉 fastmcp 再整包安装sed -i 's/fastmcp>=0.2.0,<1.0.0/mcp[server]>=0.2.0,<1.0.0/' requirements.txtpip install -r requirements.txt
+若 requirements.txt 里还有 pwntools、angr 等装不上，可以暂时不装，先保证服务能起：
+pip install flask requests psutil beautifulsoup4 selenium webdriver-manager aiohttp
+5. 验证能否导入 FastMCP
+"
+python3 -c "from mcp.server.fastmcp import FastMCP; print('OK')"
+没报错就可以继续。
+6. 启动 HexStrike 服务
+# 确保在项目目录并已激活虚拟环境cd ~/hexstrike-aisource hexstrike-env/bin/activate# 启动服务器（默认 8888 端口）python3 hexstrike_server.py
+或指定端口、调试：
+python3 hexstrike_server.py --port 8888 --debug
