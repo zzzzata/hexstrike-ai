@@ -16,10 +16,16 @@ pip
 若 requirements.txt 里还有 pwntools、angr 等装不上，可以暂时不装，先保证服务能起：
 pip install flask requests psutil beautifulsoup4 selenium webdriver-manager aiohttp
 5. 验证能否导入 FastMCP
-"
 python3 -c "from mcp.server.fastmcp import FastMCP; print('OK')"
 没报错就可以继续。
 6. 启动 HexStrike 服务
 # 确保在项目目录并已激活虚拟环境cd ~/hexstrike-aisource hexstrike-env/bin/activate# 启动服务器（默认 8888 端口）python3 hexstrike_server.py
 或指定端口、调试：
 python3 hexstrike_server.py --port 8888 --debug
+
+
+# 在虚拟机的终端执行
+curl -s https://raw.githubusercontent.com/projectdiscovery/nuclei/main/install.sh | sh
+
+# 安装后确认
+nuclei -version
