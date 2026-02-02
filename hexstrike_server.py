@@ -13629,7 +13629,7 @@ class BrowserAgent:
         self.page_sources = []
         self.network_logs = []
 
-    def setup_browser(self, headless: bool = True, proxy_port: int = None):
+        def setup_browser(self, headless: bool = True, proxy_port: int = None):
         """Setup Chrome browser with security testing options"""
         try:
             chrome_options = Options()
@@ -13659,16 +13659,32 @@ class BrowserAgent:
             # Enable network logging
             chrome_options.set_capability('goog:loggingPrefs', {'performance': 'ALL'})
 
+            # Auto-detect browser: prefer Google Chrome, fallback to Chromium
+            browser_name = "Chrome"
+            browser_path = None
+            
+            if shutil.which('google-chrome'):
+                browser_path = '/usr/bin/google-chrome'
+                browser_name = "Google Chrome"
+                chrome_options.binary_location = browser_path
+                logger.info(f"🌐 Using Google Chrome for Browser Agent")
+            elif shutil.which('chromium'):
+                browser_path = '/usr/bin/chromium'
+                browser_name = "Chromium"
+                chrome_options.binary_location = browser_path
+                logger.info(f"🌐 Using Chromium for Browser Agent")
+            else:
+                logger.warning(f"⚠️  No Chrome/Chromium found in PATH, trying default Chrome driver...")
+
             self.driver = webdriver.Chrome(options=chrome_options)
             self.driver.set_page_load_timeout(30)
 
-            logger.info(f"{ModernVisualEngine.format_tool_status('BrowserAgent', 'RUNNING', 'Chrome Browser Initialized')}")
+            logger.info(f"{ModernVisualEngine.format_tool_status('BrowserAgent', 'RUNNING', f'{browser_name} Browser Initialized')}")
             return True
 
         except Exception as e:
             logger.error(f"{ModernVisualEngine.format_error_card('ERROR', 'BrowserAgent', str(e))}")
             return False
-
     def navigate_and_inspect(self, url: str, wait_time: int = 5) -> dict:
         """Navigate to URL and perform comprehensive inspection"""
         try:
