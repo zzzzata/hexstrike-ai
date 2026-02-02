@@ -47,18 +47,42 @@ nuclei -version
 nuclei -update-templates
 
 
-# 添加 Google Chrome 仓库
-wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+# 步骤 1: 下载 Google Chrome
+cd /tmp
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 
-# 安装 Chrome
+# 步骤 2: 安装 Chrome
 sudo apt update
-sudo apt install -y google-chrome-stable
+sudo apt install -y ./google-chrome-stable_current_amd64.deb
 
-# 安装匹配的 ChromeDriver
+# 步骤 3: 验证
+google-chrome --version
+
+# 步骤 4: 获取 Chrome 版本并下载匹配的 ChromeDriver
 CHROME_VERSION=$(google-chrome --version | awk '{print $3}' | cut -d. -f1)
-CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION}")
-wget -O /tmp/chromedriver.zip "https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip"
-sudo unzip -o /tmp/chromedriver.zip -d /usr/local/bin/
+CHROMEDRIVER_JSON=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/LatestStable.json")
+CHROMEDRIVER_URL=$(echo "$CHROMEDRIVER_JSON" | grep -oP '"url":\s*"\K[^"]*chromedriver-linux64\.zip[^"]*' | head -1)
+
+# 如果失败，使用备用方法
+if [ -z "$CHROMEDRIVER_URL" ]; then
+    CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION}")
+    CHROMEDRIVER_URL="https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip"
+fi
+
+# 步骤 5: 下载并安装 ChromeDriver
+wget -O /tmp/chromedriver.zip "$CHROMEDRIVER_URL"
+
+# 解压（处理新旧两种格式）
+if unzip -l /tmp/chromedriver.zip | grep -q "chromedriver-linux64"; then
+    unzip -q /tmp/chromedriver.zip -d /tmp/
+    sudo mv /tmp/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
+    rm -rf /tmp/chromedriver-linux64
+else
+    sudo unzip -o /tmp/chromedriver.zip -d /usr/local/bin/
+fi
+
 sudo chmod +x /usr/local/bin/chromedriver
-rm /tmp/chromedriver.zip
+rm -f /tmp/chromedriver.zip
+
+# 步骤 6: 验证
+chromedriver --version
