@@ -51,6 +51,9 @@ nuclei -update-templates
 cd /tmp
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 
+sudo apt install -y libxdamage1 libxrandr2 libnss3 libatk-bridge2.0-0 libdrm2 libxkbcommon0 libxcomposite1 libgbm1 libxss1 libasound2 && \
+
+
 # 步骤 2: 安装 Chrome
 sudo apt update
 sudo apt install -y ./google-chrome-stable_current_amd64.deb
