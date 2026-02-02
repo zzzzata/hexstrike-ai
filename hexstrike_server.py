@@ -13629,7 +13629,7 @@ class BrowserAgent:
         self.page_sources = []
         self.network_logs = []
 
-        def setup_browser(self, headless: bool = True, proxy_port: int = None):
+    def setup_browser(self, headless: bool = True, proxy_port: int = None):
         """Setup Chrome browser with security testing options"""
         try:
             chrome_options = Options()
@@ -13685,6 +13685,7 @@ class BrowserAgent:
         except Exception as e:
             logger.error(f"{ModernVisualEngine.format_error_card('ERROR', 'BrowserAgent', str(e))}")
             return False
+
     def navigate_and_inspect(self, url: str, wait_time: int = 5) -> dict:
         """Navigate to URL and perform comprehensive inspection"""
         try:
