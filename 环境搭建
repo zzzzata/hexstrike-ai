@@ -27,5 +27,21 @@ python3 hexstrike_server.py --port 8888 --debug
 # 在虚拟机的终端执行
 curl -s https://raw.githubusercontent.com/projectdiscovery/nuclei/main/install.sh | sh
 
-# 安装后确认
+# 更新包列表
+sudo apt update
+
+# 安装 Go
+sudo apt install -y golang-go
+
+# 添加到 PATH
+export PATH=$PATH:/usr/lib/go/bin
+echo 'export PATH=$PATH:/usr/lib/go/bin' >> ~/.bashrc
+
+# 验证
+go version
+
+# 升级 Nuclei
+go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+export PATH=$PATH:$(go env GOPATH)/bin
 nuclei -version
+nuclei -update-templates
